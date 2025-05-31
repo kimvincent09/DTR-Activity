@@ -96,16 +96,16 @@ function updateRecordsTable() {
 // Bug 7: Missing input validation for employee IDG
 
 employeeIdInput.addEventListener('input', (e) => {
-    // Bug 8: Allows non-numeric characters in employee ID
+    
     employeeIdInput.value = e.target.value;
     const empId = employeeIdInput.value;
     if (!/^\d+$/.test(empId)) {
         alert('Employee ID must be Numbers only');
         return;
     }
-
-    if ( empId > 3) {
-        alert('Text is not allowed in Employee ID. Only numbers up to 3 digits.');
+    // Bug 8: Allows non-numeric characters in employee ID
+    if (empId.length !== 3) {
+        alert('Employee ID must be exactly 3 numbers');
         return;
     }
 });
