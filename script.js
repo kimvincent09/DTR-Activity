@@ -41,7 +41,7 @@ timeOutBtn.addEventListener('click', () => {
         timeOut: now.toLocaleTimeString(),
         hoursWorked: hoursWorked.toFixed(2)
     };
-
+    console.log(record);
     timeRecords.push(record);
     updateRecordsTable();
 });
