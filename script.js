@@ -96,4 +96,18 @@ employeeIdInput.addEventListener('input', (e) => {
     employeeIdInput.value = limitedValue;
 });
 
-// // Bug 9: Missing data persistence (records are lost on page refresh)
+// // Bug 9: Data Persistence
+function loadRecordsFromLocalStorage() {
+    const storedRecords = localStorage.getItem('timeRecords');
+    if (storedRecords) {
+        try {
+            timeRecords = JSON.parse(storedRecords);
+            updateRecordsTable();
+        } catch (e) {
+            console.error("Error loading saved records:", e);
+            timeRecords = [];
+        }
+    }
+}
+
+loadRecordsFromLocalStorage();
