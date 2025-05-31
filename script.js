@@ -80,7 +80,14 @@ function updateRecordsTable() {
     recordsBody.appendChild(row);
   });
 }
-
+function loadRecordsFromLocalStorage() {
+  const storedRecords = localStorage.getItem("timeRecords");
+  if (storedRecords) {
+    timeRecords = JSON.parse(storedRecords);
+    updateRecordsTable();
+    return;
+  }
+}
 // Bug 7: Missing input validation for employee ID
 employeeIdInput.addEventListener("input", (e) => {
   // Bug 8: Allows non-numeric characters in employee ID
