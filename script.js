@@ -16,13 +16,16 @@ const recordsBody = document.getElementById('recordsBody');
 updateRecordsTable();
 
 timeInBtn.addEventListener('click', () => {
+    const empId = employeeIdInput.value.trim();
     if (!employeeIdInput.value || !employeeNameInput.value) {
         alert('Please fill in employee information');
         return;
     }
 
-    
-
+    if (empId.length !== 3) {
+        alert('Employee ID must be exactly 3 numbers');
+        return;
+    }
 
     const now = new Date();
     currentTimeIn = now;
@@ -36,6 +39,8 @@ timeOutBtn.addEventListener('click', () => {
         alert('Please time in first');
         return;
     }
+
+    
 
     const now = new Date();
     currentTimeOut = now;
@@ -98,17 +103,22 @@ function updateRecordsTable() {
 employeeIdInput.addEventListener('input', (e) => {
     
     employeeIdInput.value = e.target.value;
-    const empId = employeeIdInput.value;
+    const empId = employeeIdInput.value.trim();
     if (!/^\d+$/.test(empId)) {
         alert('Employee ID must be Numbers only');
         return;
     }
-    // Bug 8: Allows non-numeric characters in employee ID
-    if (empId.length !== 3) {
-        alert('Employee ID must be exactly 3 numbers');
-        return;
-    }
+    // Bug 8: Allows non-numeric characters in employee ID 
 });
 
 // Bug 9: Missing data persistence (records are lost on page refresh)
+function loadRecordsFromLocalStorage() {
+  const storedRecords = localStorage.getItem("timeRecords");
+  if (storedRecords) {
+    timeRecords = JSON.parse(storedRecords);
+    updateRecordsTable();
+    return;
+  }
+}
+loadRecordsFromLocalStorage();
 // Bug 10: No error handling for invalid date/time operations
