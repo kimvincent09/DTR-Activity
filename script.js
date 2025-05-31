@@ -80,6 +80,22 @@ function updateRecordsTable() {
     recordsBody.appendChild(row);
   });
 }
+
+// Bug 7: Missing input validation for employee ID
+employeeIdInput.addEventListener("input", (e) => {
+  const originalValue = e.target.value;
+  const numericValue = originalValue.replace(/\D/g, "");
+  // Bug 8: Allows non-numeric characters in employee ID
+  if (originalValue !== numericValue) {
+    alert("Text is not allowed in Employee ID. Only numbers up to 3 digits.");
+  }
+
+  const limitedValue = numericValue.slice(0, 3);
+
+  employeeIdInput.value = limitedValue;
+});
+
+// Bug 9: Missing data persistence (records are lost on page refresh)
 function loadRecordsFromLocalStorage() {
   const storedRecords = localStorage.getItem("timeRecords");
   if (storedRecords) {
@@ -88,11 +104,5 @@ function loadRecordsFromLocalStorage() {
     return;
   }
 }
-// Bug 7: Missing input validation for employee ID
-employeeIdInput.addEventListener("input", (e) => {
-  // Bug 8: Allows non-numeric characters in employee ID
-  employeeIdInput.value = e.target.value;
-});
-
-// Bug 9: Missing data persistence (records are lost on page refresh)
+loadRecordsFromLocalStorage();
 // Bug 10: No error handling for invalid date/time operations
