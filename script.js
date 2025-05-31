@@ -41,10 +41,18 @@ timeOutBtn.addEventListener("click", () => {
     timeOut: now.toLocaleTimeString(),
     hoursWorked: hoursWorked.toFixed(2),
   };
-  console.log;
+
   timeRecords.push(record);
   updateRecordsTable();
 });
+function loadRecordsFromLocalStorage() {
+  const storedRecords = localStorage.getItem("timeRecords");
+  if (storedRecords) {
+    timeRecords = JSON.parse(storedRecords);
+    updateRecordsTable();
+    return;
+  }
+}
 
 // Bug 6: Function not properly handling empty records
 function updateRecordsTable() {
