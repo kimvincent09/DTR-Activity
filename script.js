@@ -12,12 +12,17 @@ const timeInDisplay = document.getElementById('timeInDisplay');
 const timeOutDisplay = document.getElementById('timeOutDisplay');
 const recordsBody = document.getElementById('recordsBody');
 
+
 updateRecordsTable();
+
 timeInBtn.addEventListener('click', () => {
     if (!employeeIdInput.value || !employeeNameInput.value) {
         alert('Please fill in employee information');
         return;
     }
+
+    
+
 
     const now = new Date();
     currentTimeIn = now;
@@ -47,13 +52,12 @@ timeOutBtn.addEventListener('click', () => {
     const hoursWorked = (currentTimeOut - currentTimeIn) / (1000*60*60);
     console.log(hoursWorked);
 
-    if (hoursWorked > 8){
+    if (hoursWorked > 8 && hoursWorked < 0){
         alert('you cannot Time out more than 8hrs');
         return;
     }
 
      
-    
     // Bug 5: Not checking if time in exists
     const record = {
         date: now.toLocaleDateString(),
@@ -90,10 +94,15 @@ function updateRecordsTable() {
 }
 
 // Bug 7: Missing input validation for employee ID
+
 employeeIdInput.addEventListener('input', (e) => {
     // Bug 8: Allows non-numeric characters in employee ID
     employeeIdInput.value = e.target.value;
-
+    const empId = employeeIdInput.value;
+    if (!/^\d+$/.test(empId)) {
+        alert('Employee ID must be Numbers only');
+        return;
+    }
 });
 
 // Bug 9: Missing data persistence (records are lost on page refresh)
