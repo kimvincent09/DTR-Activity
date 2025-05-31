@@ -1,5 +1,5 @@
 // Global variables
-let timeRecords = [];
+let timeRecords = JSON.parse(localStorage.getItem('timeRecords')) || [];
 let currentTimeIn = null;
 let currentTimeOut = null;
 
@@ -12,56 +12,76 @@ const timeInDisplay = document.getElementById('timeInDisplay');
 const timeOutDisplay = document.getElementById('timeOutDisplay');
 const recordsBody = document.getElementById('recordsBody');
 
-// Bug 1: Missing event listener for time in button
-timeInBtn.addEventListener('click', () => {
-    if (!employeeIdInput.value || !employeeNameInput.value) {
-        alert('Please fill in employee information');
-        return;
-    }
-    const now = new Date();
-    currentTimeIn = now;
-    timeInDisplay.textContent = now.toLocaleTimeString();
-    
-    // Bug 2: Not validating if employee info is filled
+// Input Validation - Only allow numeric characters in employee ID
+employeeIdInput.addEventListener('input', (e) => {
+    employeeIdInput.value = e.target.value.replace(/\D/g, '');
 });
 
-// Bug 3: Time out button allows time out without time in
+// Time In Button Handler
+timeInBtn.addEventListener('click', () => {
+    if (!employeeIdInput.value || !employeeNameInput.value) {
+        alert('Please fill in both Employee ID and Name.');
+        return;
+    }
+
+    currentTimeIn = new Date();
+    currentTimeOut = null; // Reset timeOut
+    timeInDisplay.textContent = currentTimeIn.toLocaleTimeString();
+    timeOutDisplay.textContent = ''; // Clear previous Time Out
+});
+
+// Time Out Button Handler
 timeOutBtn.addEventListener('click', () => {
     if (!currentTimeIn) {
         alert('Please record time in before clocking out.');
         return;
     }
-    const now = new Date();
-    currentTimeOut = now;
-    timeOutDisplay.textContent = now.toLocaleTimeString();
 
-    // Bug 4: Incorrect hours calculation
+    currentTimeOut = new Date();
+    timeOutDisplay.textContent = currentTimeOut.toLocaleTimeString();
+
     const hoursWorked = (currentTimeOut - currentTimeIn) / (1000 * 60 * 60);
-    if (hoursWorked > 8) { 
-        alert('Invalid hours, 8 hours is the maximun.');
-    }
-    else if (hoursWorked < 0 ) {
-        alert('Invalid hours, time out cannot be the same as time in.');
+
+    if (hoursWorked <= 0) {
+        alert('Invalid hours. Time out must be after time in.');
         return;
     }
-    
-    // Bug 5: Not checking if time in exists
+
+    if (hoursWorked > 8) {
+        alert('Invalid hours. Maximum allowed is 8 hours.');
+        return;
+    }
+
     const record = {
-        date: now.toLocaleDateString(),
+        employeeId: employeeIdInput.value,
+        employeeName: employeeNameInput.value,
+        date: currentTimeOut.toLocaleDateString(),
         timeIn: currentTimeIn.toLocaleTimeString(),
-        timeOut: now.toLocaleTimeString(),
+        timeOut: currentTimeOut.toLocaleTimeString(),
         hoursWorked: hoursWorked.toFixed(2)
     };
 
-
     timeRecords.push(record);
+    localStorage.setItem('timeRecords', JSON.stringify(timeRecords)); // Data persistence
+
     updateRecordsTable();
+    currentTimeIn = null;
+    currentTimeOut = null;
+    timeInDisplay.textContent = '';
+    timeOutDisplay.textContent = '';
 });
 
-// Bug 6: Function not properly handling empty records
+// Update Records Table Function
 function updateRecordsTable() {
     recordsBody.innerHTML = '';
-    
+
+    if (timeRecords.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `<td colspan="4">No records available.</td>`;
+        recordsBody.appendChild(emptyRow);
+        return;
+    }
+
     timeRecords.forEach(record => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -74,11 +94,5 @@ function updateRecordsTable() {
     });
 }
 
-// Bug 7: Missing input validation for employee ID
-employeeIdInput.addEventListener('input', (e) => {
-    // Bug 8: Allows non-numeric characters in employee ID
-    employeeIdInput.value = e.target.value;
-});
-
-// Bug 9: Missing data persistence (records are lost on page refresh)
-// Bug 10: No error handling for invalid date/time operations 
+// Initialize table on page load
+updateRecordsTable();
