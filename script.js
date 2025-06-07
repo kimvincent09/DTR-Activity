@@ -1,3 +1,4 @@
+
 // Global variables
 let timeRecords = [];
 let currentTimeIn = null;
@@ -12,27 +13,42 @@ const timeInDisplay = document.getElementById('timeInDisplay');
 const timeOutDisplay = document.getElementById('timeOutDisplay');
 const recordsBody = document.getElementById('recordsBody');
 
-// Bug 1: Missing event listener for time in button
 timeInBtn.addEventListener('click', () => {
-    const now = new Date();
-    currentTimeIn = now;
-    timeInDisplay.textContent = now.toLocaleTimeString();
-    
-    // Bug 2: Not validating if employee info is filled
     if (!employeeIdInput.value || !employeeNameInput.value) {
         alert('Please fill in employee information');
         return;
     }
+
+    const now = new Date();
+    currentTimeIn = now;
+    timeInDisplay.textContent = now.toLocaleTimeString();
+    console.log(currentTimeIn)
 });
 
 // Bug 3: Time out button allows time out without time in
 timeOutBtn.addEventListener('click', () => {
+    if (currentTimeIn == null) {
+        alert('Please time in first');        return;
+    }
+
     const now = new Date();
     currentTimeOut = now;
+    // currentTimeOut = now.setDate(now.getDate()+1); //for testing
+     currentTimeOut = now.setHours(now.getHours()+1);
+   
+
     timeOutDisplay.textContent = now.toLocaleTimeString();
+    console.log(currentTimeIn);
+    
 
     // Bug 4: Incorrect hours calculation
-    const hoursWorked = (currentTimeOut - currentTimeIn) / (1000 * 60 * 60);
+    const hoursWorked = (currentTimeOut - currentTimeIn) / (1000*60*60);
+    console.log(hoursWorked);
+
+    if (hoursWorked > 8){
+        alert('you cannot Time out more than 8hrs');
+        return;
+    }
     
     // Bug 5: Not checking if time in exists
     const record = {
@@ -46,9 +62,23 @@ timeOutBtn.addEventListener('click', () => {
     updateRecordsTable();
 });
 
-// Bug 6: Function not properly handling empty records
+
 function updateRecordsTable() {
     recordsBody.innerHTML = '';
+
+   
+    localStorage.setItem('timeRecords', JSON.stringify(timeRecords));
+
+    if (timeRecords.length == 0) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 4; 
+        cell.textContent = 'No records found';
+        cell.style.textAlign = 'center';
+        row.appendChild(cell);
+        recordsBody.appendChild(row);
+        return;
+    }
     
     timeRecords.forEach(record => {
         const row = document.createElement('tr');
@@ -62,11 +92,35 @@ function updateRecordsTable() {
     });
 }
 
+
+function loadRecordsFromLocalStorage() {
+    const storedRecords = localStorage.getItem('timeRecords');
+    if (storedRecords) {
+        timeRecords = JSON.parse(storedRecords);
+        updateRecordsTable();
+        return;
+    }
+}
+
 // Bug 7: Missing input validation for employee ID
 employeeIdInput.addEventListener('input', (e) => {
-    // Bug 8: Allows non-numeric characters in employee ID
-    employeeIdInput.value = e.target.value;
+    const originalValue = e.target.value;
+    const numericValue = originalValue.replace(/\D/g, '');
+
+    if (originalValue !== numericValue) {
+        alert('Text is not allowed in Employee ID. Only numbers up to 3 digits.');
+    }
+
+    // Limit to max 3 digits
+    const limitedValue = numericValue.slice(0, 3);
+
+    employeeIdInput.value = limitedValue;
 });
 
+// Bug 8: Allows non-numeric characters in employee ID
+
 // Bug 9: Missing data persistence (records are lost on page refresh)
-// Bug 10: No error handling for invalid date/time operations 
+loadRecordsFromLocalStorage();
+updateRecordsTable();
+
+// Bug 10: No error handling for invalid date/time operations
